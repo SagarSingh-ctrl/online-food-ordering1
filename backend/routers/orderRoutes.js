@@ -170,58 +170,6 @@ router.put(
     adminMiddleware,
     async (req, res) => {
         try {
-            const { status } = req.body;
-
-            const allowedStatuses = [
-                "Pending",
-                "Confirmed",
-                "Preparing",
-                "Out for Delivery",
-                "Delivered",
-                "Cancelled"
-            ];
-
-            if (!allowedStatuses.includes(status)) {
-                return res.status(400).json({
-                    message: "Invalid order status"
-                });
-            }
-
-            const order = await Order.findByIdAndUpdate(
-                req.params.id,
-                { status },
-                {
-                    new: true,
-                    runValidators: true
-                }
-            );
-
-            if (!order) {
-                return res.status(404).json({
-                    message: "Order not found"
-                });
-            }
-
-            res.status(200).json({
-                message: "Order status updated successfully",
-                order
-            });
-
-        } catch (error) {
-            res.status(500).json({
-                message: "Failed to update order status",
-                error: error.message
-            });
-        }
-    }
-);
-
-router.put(
-    "/admin/:id/status",
-    authMiddleware,
-    adminMiddleware,
-    async (req, res) => {
-        try {
             console.log("STATUS BODY:", req.body);
             console.log("ORDER ID:", req.params.id);
 

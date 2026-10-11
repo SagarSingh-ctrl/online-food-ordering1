@@ -1,20 +1,32 @@
 function FoodCard({ food, addToCart }) {
+
+    const imageUrl = food.image
+        ? food.image.startsWith("http")
+            ? food.image
+            : `http://localhost:5000${food.image}`
+        : "";
+
     return (
         <div className="food-card">
 
+            {/* Food Image */}
             <img
-                src={
-                    food.image?.startsWith("http")
-                        ? food.image
-                        : `http://localhost:5000${food.image}`
-                }
+                src={imageUrl}
                 alt={food.name}
-                className="food-image"
+                onError={(e) => {
+                    console.log(
+                        "Image not found:",
+                        e.target.src
+                    );
+                }}
             />
 
+            {/* Food Details */}
             <div className="food-info">
 
-                <h2>{food.name}</h2>
+                <h2>
+                    {food.name}
+                </h2>
 
                 <p>
                     {food.description}

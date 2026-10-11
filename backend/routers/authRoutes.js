@@ -11,7 +11,7 @@ const router = express.Router();
 // ===============================
 router.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password } = req.body || {};
 
         // Check required fields
         if (!name || !email || !password) {
