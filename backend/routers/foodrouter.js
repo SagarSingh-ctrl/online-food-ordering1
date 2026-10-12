@@ -4,44 +4,35 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const { v2: cloudinary } = require("cloudinary");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 // ===============================
 // UPLOAD FOLDER
 // ===============================
 
-const uploadDir = path.join(__dirname, "..", "uploads");
+// const uploadDir = path.join(__dirname, "..", "uploads");
 
-// Folder nahi hai to automatically create hoga
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+// // Folder nahi hai to automatically create hoga
+// if (!fs.existsSync(uploadDir)) {
+//     fs.mkdirSync(uploadDir, { recursive: true });
+// }
 
 // ===============================
 // MULTER STORAGE
 // ===============================
 
-const storage = multer.diskStorage({
-
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-
-    filename: (req, file, cb) => {
-
-        const extension = path.extname(file.originalname);
-
-        const filename =
-            Date.now() + "-" +
-            Math.round(Math.random() * 100000) +
-            extension;
-
-        cb(null, filename);
-    }
-});
+const storage = multer.memoryStorage();
 
 // ===============================
 // MULTER UPLOAD
@@ -163,10 +154,28 @@ router.post(
 
             }
 
-            // Image URL
-            const imagePath =
-                `/uploads/${req.file.filename}`;
+            // Upload image to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
 
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "food-ordering"
+                    },
+                    (error, result) => {
+
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result);
+                        }
+
+                    }
+                );
+
+                stream.end(req.file.buffer);
+            });
+
+            // Cloudinary URL save karo
             const food = await Food.create({
 
                 name: name.trim(),
@@ -177,7 +186,7 @@ router.post(
 
                 category: category.trim(),
 
-                image: imagePath
+                image: uploadResult.secure_url
 
             });
 
@@ -227,9 +236,7 @@ router.put(
                 category
             } = req.body;
 
-            const food = await Food.findById(
-                req.params.id
-            );
+            const food = await Food.findById(req.params.id);
 
             if (!food) {
 
@@ -245,28 +252,36 @@ router.put(
             food.price = Number(price);
             food.category = category;
 
-            // If new image uploaded
+            // ===============================
+            // NEW IMAGE UPLOADED
+            // ===============================
+
             if (req.file) {
 
-                // Delete old local image
-                if (
-                    food.image &&
-                    food.image.startsWith("/uploads/")
-                ) {
+                // Upload new image to Cloudinary
+                const uploadResult = await new Promise((resolve, reject) => {
 
-                    const oldImagePath = path.join(
-                        uploadDir,
-                        path.basename(food.image)
+                    const stream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: "food-ordering"
+                        },
+                        (error, result) => {
+
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
+
+                        }
                     );
 
-                    if (fs.existsSync(oldImagePath)) {
-                        fs.unlinkSync(oldImagePath);
-                    }
+                    stream.end(req.file.buffer);
 
-                }
+                });
 
-                food.image =
-                    `/uploads/${req.file.filename}`;
+                // Save Cloudinary URL
+                food.image = uploadResult.secure_url;
             }
 
             await food.save();

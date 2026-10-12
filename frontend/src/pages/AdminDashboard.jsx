@@ -137,16 +137,7 @@ function AdminDashboard() {
                 food.category
             );
 
-            // Image URL
-            if (food.image) {
-
-                formData.append(
-                    "imageUrl",
-                    food.image
-                );
-            }
-
-            // Computer image
+            // Upload selected computer image
             if (imageFile) {
 
                 formData.append(
@@ -301,7 +292,7 @@ function AdminDashboard() {
             description: item.description || "",
             price: item.price || "",
             category: item.category || "",
-            image: item.image || ""
+            image: ""
         });
 
         setImageFile(null);
@@ -756,15 +747,11 @@ function AdminDashboard() {
 
                                         <img
                                             src={
-                                                item.image?.startsWith(
-                                                    "http"
-                                                )
+                                                item.image?.startsWith("http")
                                                     ? item.image
-                                                    : `http://localhost:5000${item.image}`
+                                                    : `https://online-food-ordering1-backend.onrender.com${item.image}`
                                             }
-                                            alt={
-                                                item.name
-                                            }
+                                            alt={item.name}
                                         />
 
                                         {/* Details */}

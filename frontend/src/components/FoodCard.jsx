@@ -1,9 +1,11 @@
 function FoodCard({ food, addToCart }) {
+    console.log("HOME FOOD:", food);
+    console.log("HOME IMAGE:", food.image);
 
     const imageUrl = food.image
         ? food.image.startsWith("http")
             ? food.image
-            : `http://localhost:5000${food.image}`
+            : `https://online-food-ordering1-backend.onrender.com${food.image}`
         : "";
 
     return (

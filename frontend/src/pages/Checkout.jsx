@@ -219,7 +219,7 @@ function Checkout() {
                                     src={
                                         item.image?.startsWith("http")
                                             ? item.image
-                                            : `http://localhost:5000${item.image}`
+                                            : `https://online-food-ordering1-backend.onrender.com${item.image}`
                                     }
                                     alt={item.name}
                                 />
