@@ -1,5 +1,6 @@
 function FoodCard({ food, addToCart }) {
-
+    // console.log("HOME FOOD:", food);
+    // console.log("HOME IMAGE:", food.image);
 
     const imageUrl = food.image
         ? food.image.startsWith("http")
